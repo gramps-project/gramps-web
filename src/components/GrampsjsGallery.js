@@ -56,7 +56,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
           inset: 0;
         }
 
-        .profile-picture-badge {
+        .first-tile-badge {
           position: absolute;
           top: 4px;
           left: 4px;
@@ -123,7 +123,8 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
       media: {type: Array},
       dialogContent: {type: String},
       edit: {type: Boolean},
-      profilePicture: {type: Boolean},
+      // the label of the first tile in edit mode, such as "Profile picture"
+      firstTileLabel: {type: String},
       _lightboxSelected: {type: Number},
     }
   }
@@ -133,7 +134,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
     this.mediaRef = []
     this.media = []
     this.edit = false
-    this.profilePicture = false
+    this.firstTileLabel = ''
     this.dialogContent = ''
     this._lightboxSelected = 0
     this._dragReorder = new DragReorderController(this, {
@@ -153,7 +154,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
   }
 
   render() {
-    const profilePictureIndex = this._profilePictureIndex()
+    const firstTileIndex = this._firstTileIndex()
     return html`
       <div
         class="${classMap({gallery: true, reorderable: this.edit})}"
@@ -161,7 +162,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
         @dragstart="${this._dragReorder.handleDragStart}"
       >
         ${this.media.map((mediaObj, i) =>
-          this._renderThumbnail(i, profilePictureIndex)
+          this._renderThumbnail(i, firstTileIndex)
         )}
       </div>
 
@@ -207,7 +208,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
   }
 
   // the tile that is first once the ongoing drag, if any, is dropped
-  _profilePictureIndex() {
+  _firstTileIndex() {
     const {target} = this._dragReorder
     if (!target) {
       return 0
@@ -219,7 +220,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
     return target.from === 0 ? 1 : 0
   }
 
-  _renderThumbnail(i, profilePictureIndex) {
+  _renderThumbnail(i, firstTileIndex) {
     const {handle, mime, checksum} = this.media[i]
     const {rect} = this.mediaRef[i]
     const privacyIcon = renderPrivacyIcon(
@@ -239,10 +240,8 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
           checksum="${checksum}"
           @click="${() => this._handleClick(i)}"
         ></grampsjs-img>
-        ${this.edit && this.profilePicture && i === profilePictureIndex
-          ? html`<span class="profile-picture-badge"
-              >${this._('Profile picture')}</span
-            >`
+        ${this.edit && this.firstTileLabel && i === firstTileIndex
+          ? html`<span class="first-tile-badge">${this.firstTileLabel}</span>`
           : ''}
         ${this.edit
           ? this._renderPrivacyButton(i)

@@ -1,184 +1,105 @@
-import {html} from 'lit'
+import {html, css} from 'lit'
 
-import '@material/web/textfield/filled-text-field.js'
+import '@material/web/button/outlined-button.js'
+import '@material/web/button/filled-button.js'
+import {mdiClose, mdiContentSave} from '@mdi/js'
 
-import '../components/GrampsjsEditor.js'
-import '../components/GrampsjsFormString.js'
-import '../components/GrampsjsFormPrivate.js'
-import '../components/GrampsjsFormSelectObjectList.js'
-import {GrampsjsViewNewSource} from './GrampsjsViewNewSource.js'
+import {GrampsjsView} from './GrampsjsView.js'
+import '../components/GrampsjsBlogPostForm.js'
+import '../components/GrampsjsIcon.js'
 
-import {makeHandle, fireEvent, reportRequiredField} from '../util.js'
-import {clearDraftsWithPrefix} from '../api.js'
+import {fireEvent} from '../util.js'
 import {clearTagCache, fetchAllTags} from '../tags.js'
+import {blogMediaRequests, isIsoDate, newBlogPostObjects} from '../blog.js'
 
-const dataDefault = {
-  _class: 'Source',
-}
+export class GrampsjsViewNewBlogPost extends GrampsjsView {
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        div.spacer {
+          margin-top: 2em;
+        }
 
-export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
+        p.right {
+          text-align: right;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       _blogTagHandle: {type: String},
       _isSaving: {type: Boolean},
+      _isFormValid: {type: Boolean},
     }
   }
 
   constructor() {
     super()
-    this.data = {...dataDefault}
-    this.postUrl = '/api/objects/'
-    this.itemPath = 'blog'
-    this.objClass = 'Source'
     this._blogTagHandle = ''
     this._isSaving = false
+    this._isFormValid = false
   }
 
   renderContent() {
     return html`
       <h2>${this._('New Blog Post')}</h2>
-
-      <h3 class="label">${this._('Title')}</h3>
-      <p>
-        <md-filled-text-field
-          required
-          supporting-text="&nbsp;"
-          style="width:100%;"
-          @input="${this.handleName}"
-          @blur="${this.handleName}"
-          id="source-name"
-        ></md-filled-text-field>
-      </p>
-
-      <h3 class="label">${this._('Author')}</h3>
-      <p>
-        <grampsjs-form-string fullwidth id="author"></grampsjs-form-string>
-      </p>
-
-      <h3 class="label">${this._('Content')}</h3>
-      <p>
-        <grampsjs-editor
-          @formdata:changed="${this.handleEditor}"
-          id="blog-post-content-editor"
-          allowImages
-          .appState="${this.appState}"
-        ></grampsjs-editor>
-      </p>
-
-      <h3 class="label">${this._('Media')}</h3>
-      <grampsjs-form-select-object-list
-        multiple
-        objectType="media"
+      <grampsjs-blog-post-form
         .appState="${this.appState}"
-        id="media"
-      ></grampsjs-form-select-object-list>
-
-      ${this._renderTagsForm()}
-
-      <div class="spacer"></div>
-      <grampsjs-form-private
-        id="private"
-        .appState="${this.appState}"
-      ></grampsjs-form-private>
-
+        @blog-post-form:changed="${this._handleFormChanged}"
+      ></grampsjs-blog-post-form>
       ${this._isSaving
         ? html`<p>${this._('Saving...')}</p>`
         : this.renderButtons()}
     `
-    // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
 
-  handleName(e) {
-    reportRequiredField(e.target, this._('This field is mandatory'))
-    this.checkFormValidity()
-    this.data = {...this.data, title: e.target.value.trim()}
+  renderButtons() {
+    return html`
+      <div class="spacer"></div>
+      <p class="right">
+        <md-outlined-button @click="${this._reset}">
+          <grampsjs-icon
+            slot="icon"
+            path="${mdiClose}"
+            color="currentColor"
+          ></grampsjs-icon>
+          ${this._('Reset')}
+        </md-outlined-button>
+        <md-filled-button
+          @click="${this._submit}"
+          ?disabled=${!this._isFormValid}
+        >
+          <grampsjs-icon
+            slot="icon"
+            path="${mdiContentSave}"
+            color="currentColor"
+          ></grampsjs-icon>
+          ${this._('Add')}
+        </md-filled-button>
+      </p>
+    `
   }
 
-  _handleFormData(e) {
-    this.checkFormValidity()
-    super._handleFormData(e)
-    const originalTarget = e.composedPath()[0]
-    if (originalTarget.id === 'media-list') {
-      this.data = {
-        ...this.data,
-        media_list: (e.detail.data || []).map(ref => ({ref})),
-      }
-    }
+  get _form() {
+    return this.renderRoot.querySelector('grampsjs-blog-post-form')
   }
 
-  handleEditor(e) {
-    if (e.detail?.data?.string && e.detail.data.string.trim()) {
-      this.data = {
-        ...this.data,
-        note: {_class: 'Note', text: e.detail.data},
-      }
-    } else {
-      const {note, ...data} = this.data
-      this.data = data
-    }
-  }
-
-  checkFormValidity() {
-    const name = this.shadowRoot.getElementById('source-name')
-    try {
-      this.isFormValid = name?.validity?.valid
-    } catch {
-      this.isFormValid = false
-    }
+  _handleFormChanged(e) {
+    const {data} = e.detail
+    this._isFormValid = Boolean(data.title.trim()) && isIsoDate(data.date)
   }
 
   _reset() {
-    super._reset()
-    const name = this.shadowRoot.getElementById('source-name')
-    if (name) {
-      name.value = ''
-    }
-    const text = this.shadowRoot.querySelector('grampsjs-editor')
-    text.reset()
-    this.isFormValid = false
-    this.data = {...dataDefault}
+    this._form.reset()
     this._isSaving = false
-  }
-
-  _processedData(mediaRefs) {
-    const {note, ...source} = this.data
-    const tagList = [
-      ...new Set(
-        [this._blogTagHandle, ...(this.data.tag_list || [])].filter(Boolean)
-      ),
-    ]
-    if (!note?.text?.string) {
-      return [
-        {
-          ...source,
-          tag_list: tagList,
-          media_list: mediaRefs,
-        },
-      ]
-    }
-    const handleSource = makeHandle()
-    const handleNote = makeHandle()
-    return [
-      {
-        ...source,
-        handle: handleSource,
-        note_list: [handleNote],
-        tag_list: tagList,
-        media_list: mediaRefs,
-      },
-      {
-        ...note,
-        handle: handleNote,
-        tag_list: tagList,
-        private: Boolean(source.private),
-      },
-    ]
   }
 
   async _fetchBlogTagHandle() {
     const data = await fetchAllTags(this.appState)
     if ('data' in data) {
-      this._allTags = data.data
       const tags = data.data.filter(tag => tag.name === 'Blog')
       if (tags.length > 0) {
         this._blogTagHandle = tags[0].handle
@@ -199,7 +120,23 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
   }
 
   firstUpdated() {
+    super.firstUpdated()
     this._fetchBlogTagHandle()
+  }
+
+  // Saves the media objects whose privacy was changed in the form, and
+  // resolves to whether all were saved
+  async _saveMedia(formData) {
+    for (const {url, data} of blogMediaRequests(formData)) {
+      // eslint-disable-next-line no-await-in-loop
+      const res = await this.appState.apiPut(url, data)
+      if ('error' in res) {
+        this.error = true
+        this._errorMessage = res.error
+        return false
+      }
+    }
+    return true
   }
 
   async _submit() {
@@ -207,6 +144,9 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
       return
     }
     this._isSaving = true
+    // nothing entered while adding is lost when the form is reset
+    const form = this._form
+    form.inert = true
     try {
       if (!this._blogTagHandle) {
         await this._fetchBlogTagHandle()
@@ -219,23 +159,26 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
           return
         }
       }
-      const processedData = this._processedData(this.data.media_list || [])
-      const data = await this.appState.apiPost(this.postUrl, processedData)
+      const formData = this._form.data
+      if (!(await this._saveMedia(formData))) {
+        return
+      }
+      const objects = newBlogPostObjects(formData, this._blogTagHandle)
+      const data = await this.appState.apiPost('/api/objects/', objects)
       if ('data' in data) {
         this.error = false
-        const grampsId = data.data.filter(
-          obj => obj.new._class === this.objClass
-        )[0].new.gramps_id
-        const {page, pageId} = this.appState?.path || {page: '', pageId: ''}
-        clearDraftsWithPrefix(`${page}:${pageId}:`)
-        fireEvent(this, 'nav', {path: this._getItemPath(grampsId)})
-        this._reset()
+        const grampsId = data.data.find(obj => obj.new._class === 'Source').new
+          .gramps_id
+        // discards the draft of the text, while this is the current page
+        this._form.reset()
+        fireEvent(this, 'nav', {path: `blog/${grampsId}`})
       } else if ('error' in data) {
         this.error = true
         this._errorMessage = data.error
       }
     } finally {
       this._isSaving = false
+      form.inert = false
     }
   }
 }

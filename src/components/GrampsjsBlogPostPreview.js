@@ -4,9 +4,9 @@ import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsImg.js'
 import './GrampsjsGallery.js'
 import './GrampsjsNoteContent.js'
-import './GrampsjsTimedelta.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {IMAGE_PLACEHOLDER} from '../inlineImages.js'
+import {formatBlogPostDate} from '../blog.js'
 
 export class GrampsjsBlogPostPreview extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -87,12 +87,7 @@ export class GrampsjsBlogPostPreview extends GrampsjsAppStateMixin(LitElement) {
         </div>
         <div class="clear"></div>
         <div id="date">
-          ${this.appState.i18n.lang
-            ? html`<grampsjs-timedelta
-                timestamp="${this.data.change}"
-                locale="${this.appState.i18n.lang}"
-              ></grampsjs-timedelta>`
-            : ''}
+          ${formatBlogPostDate(this.data, this.appState.i18n.lang)}
         </div>
       </div>
     `

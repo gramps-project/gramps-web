@@ -1344,6 +1344,17 @@ export function formatRateLimit(limits, lang = 'en') {
     .join(', ')
 }
 
+// The Intl locale for a Gramps language code such as "pt_PT".
+export function intlLocale(lang) {
+  const locale = (lang || 'en').replace('_', '-')
+  try {
+    Intl.getCanonicalLocales(locale)
+  } catch {
+    return 'en'
+  }
+  return locale
+}
+
 // Formats a number of bytes with a decimal prefix, e.g. "1.5 MB".
 export function formatBytes(bytes) {
   if (bytes === null) {

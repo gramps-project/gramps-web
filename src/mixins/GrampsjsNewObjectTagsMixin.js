@@ -18,7 +18,9 @@ export const GrampsjsNewObjectTagsMixin = superClass =>
       this._tagDialogContent = ''
     }
 
-    _renderTagsForm() {
+    // `hideTags` are the names of tags not shown, such as a tag marking
+    // the kind of object
+    _renderTagsForm(hideTags = []) {
       const selectedTags = this._allTags.filter(t =>
         (this.data.tag_list || []).includes(t.handle)
       )
@@ -26,6 +28,7 @@ export const GrampsjsNewObjectTagsMixin = superClass =>
         <h3 class="label">${this._('Tags')}</h3>
         <grampsjs-tags
           .data="${selectedTags}"
+          .hideTags="${hideTags}"
           edit
           noHeading
           .appState="${this.appState}"

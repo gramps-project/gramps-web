@@ -3,6 +3,7 @@ import {GrampsjsEditYDnaMixin} from '../mixins/GrampsjsEditYDnaMixin.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsHelpButton.js'
+import './GrampsjsFormPrivate.js'
 
 import {fireEvent} from '../util.js'
 
@@ -44,6 +45,13 @@ export class GrampsjsFormEditYDna extends GrampsjsEditYDnaMixin(
         <div slot="content">
           <div @formdata:changed="${this._handleFormData}">
             ${this.renderEditor()}
+            <p>
+              <grampsjs-form-private
+                id="private"
+                ?checked="${this.data.private}"
+                .appState="${this.appState}"
+              ></grampsjs-form-private>
+            </p>
           </div>
         </div>
         <div slot="actions">
@@ -69,13 +77,21 @@ export class GrampsjsFormEditYDna extends GrampsjsEditYDnaMixin(
   }
 
   _handleFormData(e) {
+    if (e.composedPath()[0].id === 'private') {
+      this.data = {...this.data, private: e.detail.checked}
+      return
+    }
     this.data = {...this.data, raw_data: e.detail.data}
     this.checkFormValidity()
   }
 
   async _handleClickSaveEditedYDna() {
     fireEvent(this, 'object:save', {
-      data: {person_handle: this.personHandle, raw_data: this.data.raw_data},
+      data: {
+        person_handle: this.personHandle,
+        raw_data: this.data.raw_data,
+        private: !!this.data.private,
+      },
     })
   }
 }

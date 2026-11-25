@@ -9,6 +9,8 @@ import './GrampsjsConnectionChart.js'
 import {personDisplayName} from '../util.js'
 import './GrampsjsObjectLink.js'
 import './GrampsjsDownloadButton.js'
+import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
+import {matchAssociation} from '../dnaMatch.js'
 import {
   conflictWarning,
   groupLabel,
@@ -136,6 +138,8 @@ export class GrampsjsDnaMatch extends GrampsjsAppStateMixin(LitElement) {
             .appState="${this.appState}"
             @object:save="${this._handleSaveMatch}"
             .data="${this.data}"
+            .personHandle="${this.person.handle}"
+            .association="${this._association}"
           ></grampsjs-form-edit-match>
         </div>
       `
@@ -153,7 +157,7 @@ export class GrampsjsDnaMatch extends GrampsjsAppStateMixin(LitElement) {
           object-type="person"
           gramps-id="${this.personMatch.gramps_id}"
           >${personDisplayName(this.personMatch)}</grampsjs-object-link
-        >
+        >${renderPrivacyIcon(rowPrivacy(this._association), this.appState)}
       </h3>
 
       <div class="container summary">
@@ -239,6 +243,11 @@ export class GrampsjsDnaMatch extends GrampsjsAppStateMixin(LitElement) {
         ></grampsjs-dna-match-table>
       </div>
     `
+  }
+
+  // The association of the person that records the match
+  get _association() {
+    return matchAssociation(this.person, this.data)
   }
 
   // The estimate from the shared DNA, or null if the backend does not

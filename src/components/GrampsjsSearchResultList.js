@@ -224,6 +224,9 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
   }
 
   _renderSecondary(obj) {
+    if (obj.secondary) {
+      return obj.secondary
+    }
     if (this.date && obj.object?.change) {
       return html`<grampsjs-timedelta
         timestamp="${obj.object.change}"

@@ -518,6 +518,7 @@
   "These changes can no longer be applied.": "These changes can no longer be applied.",
   "Attach images": "Attach images",
   "Media files are imported separately, under %s.": "Media files are imported separately, under %s.",
+  "Cover image": "Cover image",
   "Merge into…": "Merge into…",
   "User \"%s\" will be deleted. Their linked sign-in methods, access tokens and edit history move to the selected user, who keeps their own calendar link if they have one.": "User \"%s\" will be deleted. Their linked sign-in methods, access tokens and edit history move to the selected user, who keeps their own calendar link if they have one.",
   "Users merged": "Users merged"

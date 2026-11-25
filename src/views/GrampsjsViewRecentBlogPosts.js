@@ -2,6 +2,7 @@ import {html, css} from 'lit'
 
 import {GrampsjsConnectedComponent} from '../components/GrampsjsConnectedComponent.js'
 import '../components/GrampsjsSearchResultList.js'
+import {blogRules, formatBlogPostDate, sortBlogPosts} from '../blog.js'
 
 export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
   static get styles() {
@@ -28,18 +29,21 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
         <p>${this._('None')}.</p>
       `
     }
+    const [latest] = this._data.data
     return html`
       <h3>${this._('Latest Blog Post')}</h3>
       <grampsjs-search-result-list
         large
         linked
-        .data="${this._data.data.slice(0, 1).map(obj => ({
-          object: obj,
-          object_type: 'source',
-          path: `blog/${obj.gramps_id}`,
-        }))}"
+        .data="${[
+          {
+            object: latest,
+            object_type: 'source',
+            path: `blog/${latest.gramps_id}`,
+            secondary: formatBlogPostDate(latest, this.appState.i18n.lang),
+          },
+        ]}"
         .appState="${this.appState}"
-        date
         noSep
       >
       </grampsjs-search-result-list>
@@ -60,19 +64,45 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
   }
 
   getUrl() {
-    const rules = {
-      rules: [
-        {
-          name: 'HasTag',
-          values: ['Blog'],
-        },
-      ],
-    }
     return `/api/sources/?rules=${encodeURIComponent(
-      JSON.stringify(rules)
-    )}&pagesize=1&sort=-change&locale=${
-      this.appState.i18n.lang || 'en'
-    }&profile=all&extend=all`
+      JSON.stringify(blogRules)
+    )}&keys=handle,attribute_list,change`
+  }
+
+  // The API can't sort by the date attribute, so this fetches the dates of
+  // all posts, sorts them here and then fetches the latest post with its
+  // media.
+  async _updateGetData(url) {
+    const list = await this.appState.apiGet(url)
+    if ('error' in list) {
+      this._setError(list)
+      return
+    }
+    const [latest] = sortBlogPosts(list.data ?? [])
+    if (!latest) {
+      this._setData([])
+      return
+    }
+    const data = await this.appState.apiGet(
+      `/api/sources/${latest.handle}?extend=media_list&keys=handle,gramps_id,title,attribute_list,change,media_list,extended`
+    )
+    if ('error' in data) {
+      this._setError(data)
+      return
+    }
+    this._setData([data.data])
+  }
+
+  _setData(data) {
+    this._data = {data}
+    this.error = false
+    this._fireUpdateEvent()
+  }
+
+  _setError(data) {
+    this.error = true
+    this._errorMessage = data.error
+    this._errorDetail = data.errorDetail ?? {}
   }
 }
 

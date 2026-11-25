@@ -5,6 +5,7 @@ import {
   apiRegisterUser,
   apiResetPassword,
   apiGetOIDCConfig,
+  apiGetRegistrationEnabled,
   apiOIDCLogin,
   apiPutPostDelete,
   Auth,
@@ -332,6 +333,62 @@ describe('apiRegisterUser error handling', () => {
 
     const result = await apiRegisterUser('user', 'pass', '', '', '')
     expect(result.error).toBe('Internal Server Error')
+  })
+})
+
+describe('apiGetRegistrationEnabled', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  const stubFetch = response => {
+    const fetchMock = vi.fn().mockResolvedValue(response)
+    vi.stubGlobal('fetch', fetchMock)
+    return fetchMock
+  }
+
+  it('reports what the server says', async () => {
+    for (const enabled of [true, false]) {
+      stubFetch({ok: true, status: 200, json: () => Promise.resolve({enabled})})
+      expect(await apiGetRegistrationEnabled()).toBe(enabled)
+    }
+  })
+
+  it('asks about the given tree', async () => {
+    const fetchMock = stubFetch({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({enabled: true}),
+    })
+    await apiGetRegistrationEnabled('tree a')
+    expect(fetchMock.mock.calls[0][0]).toMatch(
+      /\/api\/register\/config\/\?tree=tree\+a$/
+    )
+  })
+
+  it('asks without a tree when none is given', async () => {
+    const fetchMock = stubFetch({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({enabled: true}),
+    })
+    await apiGetRegistrationEnabled()
+    expect(fetchMock.mock.calls[0][0]).toMatch(/\/api\/register\/config\/$/)
+  })
+
+  it('resolves to null for a backend without the endpoint', async () => {
+    stubFetch({ok: false, status: 404, json: () => Promise.resolve({})})
+    expect(await apiGetRegistrationEnabled()).toBeNull()
+  })
+
+  it('resolves to null without a boolean answer', async () => {
+    stubFetch({ok: true, status: 200, json: () => Promise.resolve({})})
+    expect(await apiGetRegistrationEnabled()).toBeNull()
+  })
+
+  it('resolves to null when the request fails', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('offline')))
+    expect(await apiGetRegistrationEnabled()).toBeNull()
   })
 })
 

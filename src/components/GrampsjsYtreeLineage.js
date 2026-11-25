@@ -11,6 +11,10 @@ import {getImageUrl} from '../charts/util.js'
 import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
 
+// The page of a clade in the YFull tree, which the lineage comes from
+export const yfullCladeUrl = name =>
+  `https://yfull.com/tree/${encodeURIComponent(name)}`
+
 const birthYear = person =>
   person?.extended?.events?.[person?.birth_ref_index]?.date?.year
 
@@ -53,6 +57,19 @@ export class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
           display: block;
           max-width: 100%;
           height: auto;
+        }
+
+        svg a.box-link:hover rect {
+          fill: var(--grampsjs-body-font-color-10);
+        }
+
+        svg a.box-link:focus {
+          outline: none;
+        }
+
+        svg a.box-link:focus-visible rect {
+          stroke: var(--md-sys-color-secondary);
+          stroke-width: 3px;
         }
 
         md-filled-tonal-icon-button {
@@ -117,6 +134,7 @@ export class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
         name: clade.name,
         year: `≈ ${formatYear(clade.age_info?.formed ?? '')}`,
         connectorText: '',
+        url: yfullCladeUrl(clade.name),
       })
       // connectorText for next connector
       if (i < dataToProcess.length - 1) {

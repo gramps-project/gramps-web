@@ -303,8 +303,6 @@ export const chartDefinitions = {
         label: 'Max Degree of Separation',
         type: 'number',
         min: 0,
-        // The backend filter gets much slower with each degree
-        max: 6,
         default: 2,
       },
       nameDisplayFormatSetting('relationshipChartNameDisplayFormat'),
@@ -359,13 +357,9 @@ export const chartDefinitions = {
   },
 }
 
-// Returns a number setting's value within its minimum and maximum
+// Returns a number setting's value raised to its minimum
 export function clampSettingValue(setting, value) {
-  const atLeastMin =
-    setting.min === undefined ? value : Math.max(value, setting.min)
-  return setting.max === undefined
-    ? atLeastMin
-    : Math.min(atLeastMin, setting.max)
+  return setting.min === undefined ? value : Math.max(value, setting.min)
 }
 
 // Returns the values of a chart's settings by name, from the user settings or

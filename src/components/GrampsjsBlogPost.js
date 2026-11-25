@@ -1,14 +1,13 @@
 import {html, css, LitElement} from 'lit'
-import '@material/web/button/text-button.js'
 import {sharedStyles} from '../SharedStyles.js'
 
 import './GrampsjsImg.js'
 import {isPlayableMime} from './GrampsjsMediaPlayer.js'
 import './GrampsjsGallery.js'
 import './GrampsjsNoteContent.js'
-import './GrampsjsTimedelta.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fetchInlineMedia} from '../inlineImages.js'
+import {formatBlogPostDate} from '../blog.js'
 
 export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -62,10 +61,6 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
           --grampsjs-note-font-family: 'EB Garamond x';
         }
 
-        #btn-details {
-          margin-top: 2em;
-        }
-
         @media (min-width: 768px) {
           h2 {
             font-size: 60px;
@@ -104,12 +99,7 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
         <h2>${this.source.title}</h2>
         <h3 class="author">
           ${this.source.author} ~
-          ${this.appState.i18n.lang
-            ? html`<grampsjs-timedelta
-                timestamp="${this.source.change}"
-                locale="${this.appState.i18n.lang}"
-              ></grampsjs-timedelta>`
-            : ''}
+          ${formatBlogPostDate(this.source, this.appState.i18n.lang)}
         </h3>
         <div id="image">
           ${this.source?.media_list?.length ? this._renderImage() : ''}
@@ -136,12 +126,6 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
                   ></grampsjs-gallery>
                 `
               : ''}
-
-            <md-text-button
-              id="btn-details"
-              href="/source/${this.source.gramps_id}"
-              >${this._('Details')}</md-text-button
-            >
           </div>
         </div>
       </div>

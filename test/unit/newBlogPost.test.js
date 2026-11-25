@@ -1,83 +1,42 @@
 import {describe, it, expect, vi, beforeEach} from 'vitest'
-import {clearDraftsWithPrefix} from '../../src/api.js'
 import {GrampsjsViewNewBlogPost} from '../../src/views/GrampsjsViewNewBlogPost.js'
 import {clearTagCache} from '../../src/tags.js'
 
-vi.mock('../../src/api.js', async importActual => {
-  const actual = await importActual()
-  return {...actual, clearDraftsWithPrefix: vi.fn()}
+const text = string => ({_class: 'StyledText', string, tags: []})
+
+const formData = (props = {}) => ({
+  title: 'My trip to the archive',
+  author: '',
+  date: '2026-11-22',
+  text: text(''),
+  media_list: [],
+  tag_list: [],
+  private: false,
+  ...props,
 })
 
-const makeElement = () => {
+// the page with a stand-in for its form
+const makeElement = (data = formData()) => {
   const element = new GrampsjsViewNewBlogPost()
   element.createRenderRoot()
+  const form = {data, reset: vi.fn()}
+  Object.defineProperty(element, '_form', {get: () => form})
   return element
 }
 
-describe('new blog post: processed data', () => {
-  it('creates a single Source object when there is no note', () => {
+describe('new blog post: form validity', () => {
+  it('needs a title and a valid date', () => {
     const element = makeElement()
-    element._blogTagHandle = 'blog-tag-handle'
-    element.data = {_class: 'Source', title: 'My trip to the archive'}
+    const changed = data => element._handleFormChanged({detail: {data}})
 
-    const objects = element._processedData([])
+    changed(formData())
+    expect(element._isFormValid).toBe(true)
 
-    expect(objects).toHaveLength(1)
-    expect(objects[0]).toMatchObject({
-      _class: 'Source',
-      title: 'My trip to the archive',
-      tag_list: ['blog-tag-handle'],
-      media_list: [],
-    })
-    expect(objects[0].note_list).toBeUndefined()
-  })
+    changed(formData({title: '  '}))
+    expect(element._isFormValid).toBe(false)
 
-  it('creates a Source and a linked Note when content is present', () => {
-    const element = makeElement()
-    element._blogTagHandle = 'blog-tag-handle'
-    element.data = {
-      _class: 'Source',
-      title: 'My trip to the archive',
-      note: {_class: 'Note', text: {_class: 'StyledText', string: 'Hello'}},
-    }
-    const mediaRefs = [{ref: 'media-handle-1'}]
-
-    const [source, note] = element._processedData(mediaRefs)
-
-    expect(source.title).toBe('My trip to the archive')
-    expect(source.note_list).toEqual([note.handle])
-    expect(source.media_list).toBe(mediaRefs)
-    expect(source.tag_list).toEqual(['blog-tag-handle'])
-    expect(note.tag_list).toEqual(['blog-tag-handle'])
-    expect(note.text.string).toBe('Hello')
-  })
-
-  it('gives the Note the privacy of the Source', () => {
-    const element = makeElement()
-    element._blogTagHandle = 'blog-tag-handle'
-    const note = {_class: 'Note', text: {_class: 'StyledText', string: 'Hi'}}
-    element.data = {_class: 'Source', title: 'Title', private: true, note}
-    const [privateSource, privateNote] = element._processedData([])
-    expect(privateSource.private).toBe(true)
-    expect(privateNote.private).toBe(true)
-
-    element.data = {_class: 'Source', title: 'Title', note}
-    const [, publicNote] = element._processedData([])
-    expect(publicNote.private).toBe(false)
-  })
-
-  it('deduplicates the Blog tag against tags the user already picked', () => {
-    const element = makeElement()
-    element._blogTagHandle = 'blog-tag-handle'
-    element.data = {
-      _class: 'Source',
-      title: 'Title',
-      tag_list: ['blog-tag-handle', 'other-tag'],
-    }
-
-    const [source] = element._processedData([])
-
-    expect(source.tag_list).toEqual(['blog-tag-handle', 'other-tag'])
+    changed(formData({date: ''}))
+    expect(element._isFormValid).toBe(false)
   })
 })
 
@@ -152,127 +111,106 @@ describe('new blog post: Blog tag handling', () => {
   })
 })
 
-describe('new blog post: media selection', () => {
-  // The media picker (grampsjs-form-select-object-list, objectType="media")
-  // emits a formdata:changed event from its inner id="media-list" list with
-  // the array of selected handles.
-  const makeMediaListEvent = data => {
-    const target = document.createElement('div')
-    target.id = 'media-list'
-    const event = new CustomEvent('formdata:changed', {detail: {data}})
-    Object.defineProperty(event, 'composedPath', {value: () => [target]})
-    return event
-  }
-
-  // checkFormValidity() (called from _handleFormData) looks up #source-name,
-  // so stub a minimal stand-in for it.
-  const stubNameField = element => {
-    const nameField = document.createElement('div')
-    nameField.id = 'source-name'
-    nameField.reportValidity = () => true
-    nameField.validity = {valid: true}
-    element.shadowRoot.append(nameField)
-  }
-
-  it('maps selected media handles to media_list refs', () => {
-    const element = makeElement()
-    stubNameField(element)
-    element.data = {_class: 'Source', title: 'Title'}
-
-    element._handleFormData(
-      makeMediaListEvent(['media-handle-1', 'media-handle-2'])
-    )
-
-    expect(element.data.media_list).toEqual([
-      {ref: 'media-handle-1'},
-      {ref: 'media-handle-2'},
-    ])
-  })
-
-  it('clears media_list when the selection is emptied', () => {
-    const element = makeElement()
-    stubNameField(element)
-    element.data = {
-      _class: 'Source',
-      title: 'Title',
-      media_list: [{ref: 'media-handle-1'}],
-    }
-
-    element._handleFormData(makeMediaListEvent([]))
-
-    expect(element.data.media_list).toEqual([])
-  })
-})
-
 describe('new blog post: submit', () => {
-  beforeEach(() => {
-    clearDraftsWithPrefix.mockClear()
-  })
+  const created = {data: [{new: {_class: 'Source', gramps_id: 'S0001'}}]}
 
-  it('applies the Blog tag, submits the picked media_list, and navigates to the new post', async () => {
-    const element = makeElement()
+  it('adds the post from the form and goes to it', async () => {
+    const element = makeElement(
+      formData({
+        text: text('Hello'),
+        media_list: [{ref: 'media-handle-1'}],
+      })
+    )
     element._blogTagHandle = 'blog-tag-handle'
-    element.data = {
-      _class: 'Source',
-      title: 'My trip to the archive',
-      media_list: [{ref: 'media-handle-1'}],
-    }
-    element._reset = vi.fn()
-    const apiPost = vi.fn().mockResolvedValue({
-      data: [{new: {_class: 'Source', gramps_id: 'S0001'}}],
-    })
+    const apiPost = vi.fn().mockResolvedValue(created)
     element.appState = {apiPost, i18n: {strings: {}}}
     vi.spyOn(element, 'dispatchEvent')
 
     await element._submit()
 
-    expect(apiPost).toHaveBeenCalledWith(
-      '/api/objects/',
-      expect.arrayContaining([
-        expect.objectContaining({
-          title: 'My trip to the archive',
-          media_list: [{ref: 'media-handle-1'}],
-        }),
-      ])
-    )
+    const [url, objects] = apiPost.mock.calls[0]
+    expect(url).toBe('/api/objects/')
+    expect(objects[0]).toMatchObject({
+      _class: 'Source',
+      title: 'My trip to the archive',
+      media_list: [{ref: 'media-handle-1'}],
+      tag_list: ['blog-tag-handle'],
+      attribute_list: [
+        {_class: 'SrcAttribute', type: 'Date', value: '2026-11-22'},
+      ],
+    })
+    expect(objects[1]).toMatchObject({_class: 'Note', text: text('Hello')})
+    expect(element._form.reset).toHaveBeenCalledOnce()
     expect(element.dispatchEvent).toHaveBeenCalledWith(
       expect.objectContaining({type: 'nav', detail: {path: 'blog/S0001'}})
     )
-    expect(element._reset).toHaveBeenCalledOnce()
     expect(element.error).toBe(false)
+    expect(element._isSaving).toBe(false)
+  })
+
+  it('saves changed media privacy before adding the post', async () => {
+    const element = makeElement(
+      formData({
+        media_list: [{ref: 'media-a'}],
+        media_updates: [{handle: 'media-a', private: true}],
+      })
+    )
+    element._blogTagHandle = 'blog-tag-handle'
+    const order = []
+    const apiPut = vi.fn(async url => {
+      order.push(url)
+      return {data: []}
+    })
+    const apiPost = vi.fn(async url => {
+      order.push(url)
+      return created
+    })
+    element.appState = {apiPut, apiPost, i18n: {strings: {}}}
+
+    await element._submit()
+
+    expect(order).toEqual(['/api/media/media-a', '/api/objects/'])
+  })
+
+  it('does not add the post when saving media fails', async () => {
+    const element = makeElement(
+      formData({
+        media_list: [{ref: 'media-a'}],
+        media_updates: [{handle: 'media-a', private: true}],
+      })
+    )
+    element._blogTagHandle = 'blog-tag-handle'
+    const apiPut = vi.fn().mockResolvedValue({error: 'Nope'})
+    const apiPost = vi.fn()
+    element.appState = {apiPut, apiPost, i18n: {strings: {}}}
+
+    await element._submit()
+
+    expect(apiPost).not.toHaveBeenCalled()
+    expect(element.error).toBe(true)
+    expect(element._errorMessage).toBe('Nope')
     expect(element._isSaving).toBe(false)
   })
 
   it('creates the Blog tag on submit when the tree does not have one', async () => {
     const element = makeElement()
-    element._blogTagHandle = ''
-    element.data = {_class: 'Source', title: 'Title'}
-    element._reset = vi.fn()
     element._fetchBlogTagHandle = vi.fn().mockResolvedValue()
     element._createBlogTag = vi.fn().mockImplementation(async () => {
       element._blogTagHandle = 'new-blog-handle'
       return ''
     })
-    const apiPost = vi.fn().mockResolvedValue({
-      data: [{new: {_class: 'Source', gramps_id: 'S0001'}}],
-    })
+    const apiPost = vi.fn().mockResolvedValue(created)
     element.appState = {apiPost, i18n: {strings: {}}}
 
     await element._submit()
 
     expect(element._createBlogTag).toHaveBeenCalledOnce()
-    expect(apiPost).toHaveBeenCalledWith(
-      '/api/objects/',
-      expect.arrayContaining([
-        expect.objectContaining({tag_list: ['new-blog-handle']}),
-      ])
-    )
+    expect(apiPost.mock.calls[0][1][0].tag_list).toEqual(['new-blog-handle'])
     expect(element.error).toBe(false)
   })
 
   it('shows an error and does not submit when the Blog tag cannot be created', async () => {
     const element = makeElement()
-    element._blogTagHandle = ''
     element._fetchBlogTagHandle = vi.fn().mockResolvedValue()
     const apiPost = vi.fn().mockResolvedValue({error: 'Not authorized'})
     element.appState = {apiPost, i18n: {strings: {}}}
@@ -286,35 +224,9 @@ describe('new blog post: submit', () => {
     expect(element._isSaving).toBe(false)
   })
 
-  it('stays busy until the object-create request resolves, preventing double-submit', async () => {
+  it('keeps the form and reports the error when the create request fails', async () => {
     const element = makeElement()
     element._blogTagHandle = 'blog-tag-handle'
-    element.data = {_class: 'Source', title: 'Title'}
-    element._reset = vi.fn()
-    let resolveApiPost
-    const apiPost = vi.fn(
-      () =>
-        new Promise(resolve => {
-          resolveApiPost = resolve
-        })
-    )
-    element.appState = {apiPost, i18n: {strings: {}}}
-
-    const submitPromise = element._submit()
-    await Promise.resolve()
-    await Promise.resolve()
-    expect(element._isSaving).toBe(true)
-
-    resolveApiPost({data: [{new: {_class: 'Source', gramps_id: 'S0001'}}]})
-    await submitPromise
-
-    expect(element._isSaving).toBe(false)
-  })
-
-  it('clears the busy state and reports the error without navigating when the create request fails', async () => {
-    const element = makeElement()
-    element._blogTagHandle = 'blog-tag-handle'
-    element.data = {_class: 'Source', title: 'Title'}
     const apiPost = vi.fn().mockResolvedValue({error: 'Server exploded'})
     element.appState = {apiPost, i18n: {strings: {}}}
     vi.spyOn(element, 'dispatchEvent')
@@ -324,14 +236,36 @@ describe('new blog post: submit', () => {
     expect(element._isSaving).toBe(false)
     expect(element.error).toBe(true)
     expect(element._errorMessage).toBe('Server exploded')
-    expect(element.dispatchEvent).not.toHaveBeenCalled()
+    expect(element._form.reset).not.toHaveBeenCalled()
+    expect(element.dispatchEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({type: 'nav'})
+    )
+  })
+
+  it('keeps the form from changing while adding', async () => {
+    const element = makeElement()
+    element._blogTagHandle = 'blog-tag-handle'
+    let resolveApiPost
+    const apiPost = vi.fn(
+      () =>
+        new Promise(resolve => {
+          resolveApiPost = resolve
+        })
+    )
+    element.appState = {apiPost, i18n: {strings: {}}}
+
+    const submitPromise = element._submit()
+    await vi.waitFor(() => expect(apiPost).toHaveBeenCalled())
+    expect(element._form.inert).toBe(true)
+
+    resolveApiPost(created)
+    await submitPromise
+    expect(element._form.inert).toBe(false)
   })
 
   it('ignores a second submit while the first one is still in flight', async () => {
     const element = makeElement()
     element._blogTagHandle = 'blog-tag-handle'
-    element.data = {_class: 'Source', title: 'Title'}
-    element._reset = vi.fn()
     let resolveApiPost
     const apiPost = vi.fn(
       () =>
@@ -343,45 +277,11 @@ describe('new blog post: submit', () => {
 
     const submitPromise = element._submit()
     await element._submit()
-
+    expect(element._isSaving).toBe(true)
     expect(apiPost).toHaveBeenCalledOnce()
 
-    resolveApiPost({data: [{new: {_class: 'Source', gramps_id: 'S0001'}}]})
+    resolveApiPost(created)
     await submitPromise
-  })
-
-  it('clears the editor draft for this page after a successful save', async () => {
-    const element = makeElement()
-    element._blogTagHandle = 'blog-tag-handle'
-    element.data = {_class: 'Source', title: 'Title'}
-    element._reset = vi.fn()
-    const apiPost = vi.fn().mockResolvedValue({
-      data: [{new: {_class: 'Source', gramps_id: 'S0001'}}],
-    })
-    element.appState = {
-      apiPost,
-      i18n: {strings: {}},
-      path: {page: 'new_blog_post', pageId: ''},
-    }
-
-    await element._submit()
-
-    expect(clearDraftsWithPrefix).toHaveBeenCalledWith('new_blog_post::')
-  })
-
-  it('keeps the draft when the create request fails', async () => {
-    const element = makeElement()
-    element._blogTagHandle = 'blog-tag-handle'
-    element.data = {_class: 'Source', title: 'Title'}
-    const apiPost = vi.fn().mockResolvedValue({error: 'Server exploded'})
-    element.appState = {
-      apiPost,
-      i18n: {strings: {}},
-      path: {page: 'new_blog_post', pageId: ''},
-    }
-
-    await element._submit()
-
-    expect(clearDraftsWithPrefix).not.toHaveBeenCalled()
+    expect(element._isSaving).toBe(false)
   })
 })

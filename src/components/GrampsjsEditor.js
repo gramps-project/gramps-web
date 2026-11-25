@@ -357,6 +357,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     return {
       initialData: {type: Object},
       allowImages: {type: Boolean},
+      // the form containing the editor saves its text, so the editor ignores
+      // the save button of edit mode
+      savedByForm: {type: Boolean},
       data: {type: Object},
       cursorPosition: {type: Array},
       _dialogContent: {type: String},
@@ -373,6 +376,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     this.initialData = {_class: 'StyledText', string: '', tags: []}
     this.data = {_class: 'StyledText', string: '', tags: []}
     this.allowImages = false
+    this.savedByForm = false
     this.cursorPosition = [0]
     this._imagePosition = null
     this._dialogContent = null
@@ -1516,6 +1520,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleSaveButton() {
+    if (this.savedByForm) {
+      return
+    }
     // Cancel any pending draft save
     if (this._draftSaveTimer) {
       clearTimeout(this._draftSaveTimer)

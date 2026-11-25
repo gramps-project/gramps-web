@@ -102,7 +102,7 @@ export class GrampsjsFormNewMatch extends GrampsjsEditMatchMixin(
         </div>
       </div>
 
-      ${this.renderEditor()} ${this.renderPreview()}
+      ${this.renderEditor()} ${this.renderPrivate()} ${this.renderPreview()}
     `
   }
 }

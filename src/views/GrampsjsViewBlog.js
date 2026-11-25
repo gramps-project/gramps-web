@@ -10,6 +10,7 @@ import '../components/GrampsjsIcon.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
 import {fireEvent} from '../util.js'
+import {blogRules, grampsIdRules, sortBlogPosts} from '../blog.js'
 
 export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
@@ -179,34 +180,61 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._fetchData()
   }
 
+  // The API can't sort by the date attribute, so this fetches the dates of
+  // all posts, sorts them here and then fetches the full posts of the page.
   async _fetchData() {
     this.loading = true
-    const rules = {
-      rules: [
-        {
-          name: 'HasTag',
-          values: ['Blog'],
-        },
-      ],
-    }
-    const uri = `/api/sources/?rules=${encodeURIComponent(
-      JSON.stringify(rules)
-    )}&page=${this._page}&pagesize=${this._pageSize}&sort=-change&locale=${
-      this.appState.i18n.lang || 'en'
-    }&profile=all&extend=all`
-    await this.appState.apiGet(uri).then(data => {
-      if ('data' in data) {
-        this.error = false
-        this._dataSources = data.data
-        this._totalCount = data.total_count
-        this._pages = Math.ceil(this._totalCount / this._pageSize)
-      } else if ('error' in data) {
-        this.error = true
-        this._errorMessage = data.error
+    try {
+      const posts = await this._fetchSortedPosts()
+      if (posts === null) {
+        return
       }
-    })
-    this.loading = false
-    this._firstLoaded = true
+      this._totalCount = posts.length
+      this._pages = Math.ceil(this._totalCount / this._pageSize)
+      const start = (this._page - 1) * this._pageSize
+      this._dataSources = await this._fetchPosts(
+        posts.slice(start, start + this._pageSize)
+      )
+    } finally {
+      this.loading = false
+      this._firstLoaded = true
+    }
+  }
+
+  async _fetchSortedPosts() {
+    const data = await this.appState.apiGet(
+      `/api/sources/?rules=${encodeURIComponent(
+        JSON.stringify(blogRules)
+      )}&keys=handle,gramps_id,attribute_list,change`
+    )
+    if ('error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+      return null
+    }
+    this.error = false
+    return sortBlogPosts(data.data ?? [])
+  }
+
+  // the full posts in the order of the given ones
+  async _fetchPosts(posts) {
+    if (posts.length === 0) {
+      return []
+    }
+    const data = await this.appState.apiGet(
+      `/api/sources/?rules=${encodeURIComponent(
+        JSON.stringify(grampsIdRules(posts.map(post => post.gramps_id)))
+      )}&locale=${this.appState.i18n.lang || 'en'}&profile=all&extend=all`
+    )
+    if ('error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+      return []
+    }
+    const byHandle = Object.fromEntries(
+      (data.data ?? []).map(source => [source.handle, source])
+    )
+    return posts.map(post => byHandle[post.handle]).filter(Boolean)
   }
 }
 

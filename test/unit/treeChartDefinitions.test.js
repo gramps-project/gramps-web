@@ -40,14 +40,11 @@ describe('chart definitions', () => {
     expect(relationship.separation).toBe(0)
   })
 
-  it('counts a number above the maximum as the maximum', () => {
+  it('keeps any degree of separation from the minimum up', () => {
     const {relationship} = chartDefinitions
     expect(
       chartSettingValues(relationship, {relationshipChartAnc: 20}).separation
-    ).toBe(6)
-    expect(
-      chartSettingValues(relationship, {relationshipChartAnc: 6}).separation
-    ).toBe(6)
+    ).toBe(20)
   })
 
   it('fetches one more generation than the settings count', () => {
@@ -204,17 +201,28 @@ describe('GrampsjsViewTree', () => {
       ])
     })
 
-    it('saves and shows a value within the limits and skips an empty field', () => {
+    it('saves and shows a value raised to the minimum and skips an empty field', () => {
       const {view, updateSettings} = makeSettingsView()
-      const field = input(40)
+      const field = input(-3)
       view._changeNumberSetting(separation, field)
       vi.runAllTimers()
-      expect(field.value).toBe('6')
+      expect(field.value).toBe('0')
       view._changeNumberSetting(separation, input(3))
       view._changeNumberSetting(separation, input(''))
       vi.runAllTimers()
       expect(updateSettings.mock.calls).toEqual([
-        [{relationshipChartAnc: 6}, false],
+        [{relationshipChartAnc: 0}, false],
+      ])
+    })
+
+    it('saves a high degree of separation unchanged', () => {
+      const {view, updateSettings} = makeSettingsView()
+      const field = input(40)
+      view._changeNumberSetting(separation, field)
+      vi.runAllTimers()
+      expect(field.value).toBe('40')
+      expect(updateSettings.mock.calls).toEqual([
+        [{relationshipChartAnc: 40}, false],
       ])
     })
 

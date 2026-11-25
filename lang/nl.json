@@ -544,5 +544,12 @@
     "The shared DNA is unlikely for the relationship in the tree.": "Het gedeelde DNA is onwaarschijnlijk voor de relatie in de stamboom.",
     "Relative of degree %s": "Familielid van graad %s",
     "Parent or child": "Ouder of kind",
-    "Full sibling": "Volle broer of zus"
+    "Full sibling": "Volle broer of zus",
+    "Preparing changes...": "Wijzigingen voorbereiden…",
+    "Proposed changes": "Voorgesteld wijzigingen",
+    "Changes proposed by the assistant": "Wijzigingen voorgesteld door de assistent",
+    "Changes applied": "Wijzigingen toegepast",
+    "These changes can no longer be applied.": "Deze wijzigingen kunnen niet meer worden toegepast.",
+    "Attach images": "Afbeeldingen bijsluiten",
+    "Media files are imported separately, under %s.": "Mediabestanden worden afzonderlijk geïmporteerd onder %s."
 }

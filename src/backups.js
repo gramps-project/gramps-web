@@ -1,15 +1,6 @@
 // Helpers for the stored backups of a tree and restoring from them.
 
-// The Intl locale for a Gramps language code such as "pt_PT".
-function intlLocale(lang) {
-  const locale = (lang || 'en').replace('_', '-')
-  try {
-    Intl.getCanonicalLocales(locale)
-  } catch {
-    return 'en'
-  }
-  return locale
-}
+import {intlLocale} from './util.js'
 
 // Formats a backup's creation time from its manifest (UTC, as
 // "2026-10-14T12:00:00Z") in the local time zone.

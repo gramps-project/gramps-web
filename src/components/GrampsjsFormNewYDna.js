@@ -60,7 +60,7 @@ export class GrampsjsFormNewYDna extends GrampsjsEditYDnaMixin(
         </div>
       </div>
 
-      ${this.renderEditor()}
+      ${this.renderEditor()} ${this.renderPrivate()}
     `
   }
 
