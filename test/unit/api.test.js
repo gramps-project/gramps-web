@@ -840,6 +840,52 @@ describe('apiPutPostDelete success statuses', () => {
     vi.unstubAllGlobals()
   })
 
+  it('returns the OCR transcript for a synchronous text response', async () => {
+    const transcript = 'María García\nDiciembre de 1987\n'
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(transcript, {
+          status: 201,
+          headers: {'Content-Type': 'text/html; charset=utf-8'},
+        })
+      )
+    )
+
+    const result = await apiPutPostDelete(
+      undefined,
+      'POST',
+      '/api/media/example/ocr?lang=spa',
+      undefined,
+      {acceptTextResult: true, dbChanged: false, skipAuth: true}
+    )
+
+    expect(result.data).toBe(transcript)
+  })
+
+  it('returns the task reference for a queued OCR request', async () => {
+    const queued = {task: {id: 't1', href: '/api/tasks/t1'}}
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(queued), {
+          status: 202,
+          headers: {'Content-Type': 'application/json'},
+        })
+      )
+    )
+
+    const result = await apiPutPostDelete(
+      undefined,
+      'POST',
+      '/api/media/example/ocr?lang=spa',
+      undefined,
+      {acceptTextResult: true, dbChanged: false, skipAuth: true}
+    )
+
+    expect(result).toEqual(queued)
+  })
+
   it('treats 204 No Content as success with empty data', async () => {
     vi.stubGlobal(
       'fetch',

@@ -299,7 +299,9 @@ export class GrampsjsTextRecognition extends GrampsjsAppStateMixin(LitElement) {
     prog.open = true
     const queryParam = new URLSearchParams(this.options).toString()
     const url = `/api/media/${this.handle}/ocr?${queryParam}`
-    const data = await this.appState.apiPost(url)
+    const data = await this.appState.apiPost(url, undefined, {
+      acceptTextResult: true,
+    })
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
