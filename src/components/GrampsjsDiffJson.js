@@ -16,6 +16,7 @@ export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
       sharedStyles,
       css`
         :host {
+          display: block;
           --color-red: var(--grampsjs-color-revision-deleted-background-red);
           --color-green: var(--grampsjs-color-revision-added-background-green);
           --color-blue: var(--grampsjs-color-revision-moved-background-blue);
