@@ -29,7 +29,9 @@ export class GrampsjsSourceCitations extends GrampsjsEditableList {
         }}"
       >
         ${obj?.profile?.source?.title || this._('Source')}
-        <span slot="supporting-text"> ${obj.page || obj.gramps_id} </span>
+        <span slot="supporting-text" class="one-line"
+          >${obj.page || obj.gramps_id}</span
+        >
         ${renderIcon({object: obj, object_type: 'citation'}, 'start')}
       </md-list-item>
     `

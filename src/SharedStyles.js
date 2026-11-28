@@ -263,6 +263,14 @@ export const sharedStyles = css`
     animation: 1.5s shine linear infinite;
   }
 
+  /* Free text in a list row, cut to one line with an ellipsis */
+  .one-line {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .card {
     padding: 1em 1em;
     border-radius: 16px;

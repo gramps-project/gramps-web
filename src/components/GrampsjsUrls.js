@@ -1,4 +1,4 @@
-import {html} from 'lit'
+import {html, css} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 import {mdiOpenInNew} from '@mdi/js'
 
@@ -13,6 +13,23 @@ import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
 import '@material/web/list/list-item.js'
 
 export class GrampsjsUrls extends GrampsjsEditableList {
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        /* The address shortens; the privacy icon after it stays visible */
+        .url-headline {
+          display: flex;
+          align-items: center;
+        }
+
+        .url-headline grampsjs-icon {
+          flex: none;
+        }
+      `,
+    ]
+  }
+
   constructor() {
     super()
     this.hasReorder = true
@@ -30,15 +47,17 @@ export class GrampsjsUrls extends GrampsjsEditableList {
           }
         }}"
       >
-        <a
-          href="${fixUrl(obj.path, obj.type)}"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="${classMap({nopointer: this.edit})}"
-          >${obj.path}</a
-        >
-        ${renderPrivacyIcon(rowPrivacy(obj), this.appState)}
-        <span slot="supporting-text"
+        <span class="url-headline">
+          <a
+            href="${fixUrl(obj.path, obj.type)}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="${classMap({'one-line': true, nopointer: this.edit})}"
+            >${obj.path}</a
+          >
+          ${renderPrivacyIcon(rowPrivacy(obj), this.appState)}
+        </span>
+        <span slot="supporting-text" class="one-line"
           >${this._(obj.type)}${obj.type && obj.desc
             ? html` &ndash; `
             : ''}${obj.desc}</span

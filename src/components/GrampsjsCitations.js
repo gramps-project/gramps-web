@@ -22,7 +22,7 @@ export class GrampsjsCitations extends GrampsjsEditableList {
           }
         }}"
       >
-        ${obj.page || this._('Citation')}
+        <span class="one-line">${obj.page || this._('Citation')}</span>
         <span slot="supporting-text"> ${obj.gramps_id} </span>
         ${renderIcon({object: obj, object_type: 'citation'}, 'start')}
       </md-list-item>

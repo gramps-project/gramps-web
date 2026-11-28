@@ -51,7 +51,7 @@ export class GrampsjsReferences extends GrampsjsEditableList {
                   type="link"
                   href="/${this._getItemPath(type, obj.gramps_id)}"
                 >
-                  <span>${desc}</span>
+                  <span class="one-line">${desc}</span>
                   <span slot="supporting-text">${detail || obj.gramps_id}</span>
                   ${renderIcon({object: obj, object_type: type}, 'start')}
                 </md-list-item>

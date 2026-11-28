@@ -184,7 +184,7 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
                 : ''}
               ${obj.loading
                 ? html`<span style="width:10em;" class="skeleton">&nbsp;</span>`
-                : html`<span>${desc}</span>`}
+                : html`<span class="one-line">${desc}</span>`}
               ${obj.loading
                 ? html`<span
                     slot="supporting-text"

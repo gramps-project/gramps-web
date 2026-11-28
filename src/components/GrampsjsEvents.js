@@ -143,7 +143,8 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     const context = obj.profile?.context || ''
     const titleLine = [obj.description, context].filter(Boolean).join(' • ')
     return html`
-      ${titleLine} ${titleLine && detail.trim() ? html`<br />` : ''} ${detail}
+      ${titleLine ? html`<span class="one-line">${titleLine}</span>` : ''}
+      ${detail}
     `
   }
 
