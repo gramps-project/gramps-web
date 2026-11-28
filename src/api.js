@@ -1199,6 +1199,7 @@ export function sendWithUploadProgress(
         status: xhr.status,
         statusText: xhr.statusText,
         json: async () => JSON.parse(xhr.responseText),
+        text: async () => xhr.responseText,
         headers: {get: name => xhr.getResponseHeader(name)},
       })
     )
@@ -1218,6 +1219,7 @@ export async function apiPutPostDelete(
   payload,
   {
     isJson = true,
+    acceptTextResult = false,
     dbChanged = true,
     requireFresh = false,
     skipAuth = false,
@@ -1254,7 +1256,11 @@ export async function apiPutPostDelete(
       ? await sendWithUploadProgress(url, request, onUploadProgress)
       : await fetch(url, request)
     try {
-      resJson = await resp.json()
+      const readAsText =
+        acceptTextResult &&
+        (resp.status === 200 || resp.status === 201) &&
+        resp.headers.get('Content-Type')?.startsWith('text/')
+      resJson = readAsText ? await resp.text() : await resp.json()
     } catch (error) {
       resJson = {}
     }
