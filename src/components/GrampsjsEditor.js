@@ -45,6 +45,7 @@ import {
 } from '../api.js'
 import {
   IMAGE_PLACEHOLDER,
+  inlineImageHandles,
   mediaHandleFromLink,
   mediaLink,
 } from '../inlineImages.js'
@@ -136,15 +137,27 @@ function isBooleanTag(tagName) {
   return false
 }
 
+// The thumbnail of an inline image, as in GrampsjsNoteContent, so that both
+// share the cached file
+function _inlineImageUrl(handle, checksum) {
+  return getThumbnailUrl(handle, 1000, false, checksum || null)
+}
+
 // An image placeholder covered by a media link renders as the image. The
 // placeholder stays in the DOM so that character offsets match data.string.
-function _inlineImageHtml(str, tags) {
+// The thumbnail URL includes the media checksum, so an image whose checksum
+// (handle to checksum in `checksums`) is not known yet has no source.
+function _inlineImageHtml(str, tags, checksums) {
   if (str !== IMAGE_PLACEHOLDER) return null
   const link = tags.find(([name]) => name === 'link')
   const handle = mediaHandleFromLink(link?.[1])
   if (!handle) return null
-  const src = _escapeHtml(getThumbnailUrl(handle, 600))
-  return `<span class="inline-image" contenteditable="false"><img src="${src}" alt="">${IMAGE_PLACEHOLDER}</span>`
+  const src = checksums.has(handle)
+    ? ` src="${_escapeHtml(_inlineImageUrl(handle, checksums.get(handle)))}"`
+    : ''
+  return `<span class="inline-image" contenteditable="false"><img data-handle="${_escapeHtml(
+    handle
+  )}" alt=""${src}>${IMAGE_PLACEHOLDER}</span>`
 }
 
 // An inline image whose thumbnail fails to load shows a file icon. The
@@ -164,8 +177,8 @@ const inlineImageErrorListener = {
   capture: true,
 }
 
-function _applyTags(str, tags) {
-  const image = _inlineImageHtml(str, tags)
+function _applyTags(str, tags, checksums) {
+  const image = _inlineImageHtml(str, tags, checksums)
   if (image !== null) return image
   // Escape the raw text slice first so that any '<', '>', '&', '"' in
   // data.string are never interpreted as HTML markup when assigned to innerHTML.
@@ -363,7 +376,6 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       data: {type: Object},
       cursorPosition: {type: Array},
       _dialogContent: {type: String},
-      _html: {type: String},
       _showDraftBanner: {type: Boolean},
       _draftTimestamp: {type: Number},
       _canUndo: {type: Boolean},
@@ -380,7 +392,12 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     this.cursorPosition = [0]
     this._imagePosition = null
     this._dialogContent = null
+    // the HTML of the text, made from data before each render
     this._html = ''
+    // checksums of the media of inline images by handle, '' when the media
+    // object cannot be fetched
+    this._checksums = new Map()
+    this._checksumRequests = new Set()
     this._showDraftBanner = false
     this._draftTimestamp = 0
     this._canUndo = false
@@ -922,8 +939,12 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
   _handleImageSelected(e) {
     e.stopPropagation()
-    const handle = e.detail.objects[0]?.handle
+    const [obj] = e.detail.objects
+    const handle = obj?.handle
     if (!handle || !this._imagePosition) return
+    if (obj.object?.checksum !== undefined) {
+      this._checksums.set(handle, obj.object.checksum)
+    }
     const [start, stop] = this._imagePosition
     this._imagePosition = null
     this._pushUndo()
@@ -1406,10 +1427,44 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
-  updated(changed) {
+  willUpdate(changed) {
     if (changed.has('data')) {
       this._html = this._getHtml()
+      this._fetchChecksums()
     }
+  }
+
+  // Fetch the checksums of inline images not known yet
+  _fetchChecksums() {
+    for (const handle of inlineImageHandles(this.data)) {
+      if (!this._checksums.has(handle) && !this._checksumRequests.has(handle)) {
+        this._fetchChecksum(handle)
+      }
+    }
+  }
+
+  async _fetchChecksum(handle) {
+    this._checksumRequests.add(handle)
+    const res = await this.appState.apiGet(`/api/media/${handle}`)
+    this._checksumRequests.delete(handle)
+    this._setChecksum(handle, res?.data?.checksum ?? '')
+  }
+
+  // Shows the images of the media with `handle`. They get their source in
+  // place, as a render would move the cursor; _html matches them for the
+  // next render.
+  _setChecksum(handle, checksum) {
+    this._checksums.set(handle, checksum)
+    this._html = this._getHtml()
+    const src = _inlineImageUrl(handle, checksum)
+    for (const img of this.renderRoot.querySelectorAll('.inline-image img')) {
+      if (img.dataset.handle === handle && !img.hasAttribute('src')) {
+        img.setAttribute('src', src)
+      }
+    }
+  }
+
+  updated() {
     this._markSelectedImages()
     // set selection
     const div = this.shadowRoot.querySelector('div.note')
@@ -1505,7 +1560,13 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     tags.forEach(tag => {
       const [j, t, name, value] = tag
       str = `${str}${
-        j > i ? _applyTags(charSlice(this.data.string, i, j), activeTags) : ''
+        j > i
+          ? _applyTags(
+              charSlice(this.data.string, i, j),
+              activeTags,
+              this._checksums
+            )
+          : ''
       }`
       if (t === 'start') {
         activeTags.push([name, value])
@@ -1514,7 +1575,11 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       }
       i = j
     })
-    str = `${str}${_applyTags(charSlice(this.data.string, i), activeTags)}`
+    str = `${str}${_applyTags(
+      charSlice(this.data.string, i),
+      activeTags,
+      this._checksums
+    )}`
     // Add zero-width space at the end to make trailing newlines visible
     return `${str}\u200B`
   }
