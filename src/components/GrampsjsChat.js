@@ -18,7 +18,7 @@ import {
 import {stripChatHistoryRaw} from '../chatHistory.js'
 import {chatVisionAvailable} from '../chatImages.js'
 import {markProposalsReported, previousProposalStatus} from '../chatProposal.js'
-import {fireEvent, makeHandle} from '../util.js'
+import {fireEvent, makeHandle, taskErrorMessage} from '../util.js'
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -417,7 +417,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
         message = this._aiMessage(status.result_object)
       } else if (!message) {
         const errMsg =
-          (status?.state === 'FAILURE' && status.result_object) ||
+          (status?.state === 'FAILURE' && taskErrorMessage(status)) ||
           'An error occurred'
         fireError(errMsg)
         message = {role: 'error', message: this._(errMsg)}
@@ -483,7 +483,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
         message = this._aiMessage(status.result_object)
       } else if (status) {
         const errMsg =
-          (status?.state === 'FAILURE' && status.result_object) ||
+          (status?.state === 'FAILURE' && taskErrorMessage(status)) ||
           'An error occurred'
         fireError(errMsg)
         message = {role: 'error', message: this._(errMsg)}
